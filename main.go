@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	_ "embed"
 	"fmt"
 	"io"
 	"os"
@@ -11,7 +12,7 @@ import (
 	"github.com/alexflint/go-arg"
 )
 
-var cfg struct {
+type cfgStruct struct {
 	StdoutPrefix *string `arg:"-o,--" placeholder:"PREFIX" help:"prefix for <stdout>"`
 	StderrPrefix *string `arg:"-e,--" placeholder:"PREFIX" help:"prefix for <stderr>"`
 	Prefix       *string `arg:"-p,--" placeholder:"PREFIX" help:"prefix for any line"`
@@ -19,6 +20,16 @@ var cfg struct {
 	Spacing      *int    `arg:"-s,--" help:"spacing between prefix and output"`
 	Demo         bool    `arg:"--demo" help:"prints a demo of all modes"`
 }
+
+//go:generate bash ./get_version.sh
+//go:embed version.txt
+var version string
+
+func (_ cfgStruct) Version() string {
+	return version
+}
+
+var cfg cfgStruct
 
 type line struct {
 	isErr bool

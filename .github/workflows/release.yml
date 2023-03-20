@@ -25,9 +25,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set version
-        run: bash ./get_version.sh
-
       - name: Build assets
         uses: wangyoucao577/go-release-action@v1.36
         with:
@@ -38,3 +35,4 @@ jobs:
           binary_name: logcli
           md5sum: FALSE
           sha256sum: TRUE
+          pre_command: go generate ./...
