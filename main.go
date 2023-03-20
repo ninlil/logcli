@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"sync"
@@ -119,9 +121,9 @@ func main() {
 	wgPrint.Wait()
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Command finished with error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "command finished with error: %v\n", err)
 	} else {
-		fmt.Println("Command finished successfully")
+		// fmt.Println("Command finished successfully")
 	}
 	if cmd.ProcessState != nil {
 		os.Exit(cmd.ProcessState.ExitCode())
@@ -138,7 +140,9 @@ func captureOutput(pipe io.ReadCloser, isErr bool, outputChan chan<- line, wg *s
 		addLine(outputChan, isErr, scanner.Text())
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading output: %v\n", err)
+		if !errors.Is(err, fs.ErrClosed) {
+			fmt.Fprintf(os.Stderr, "error reading output: %v\n", err)
+		}
 	}
 }
 
